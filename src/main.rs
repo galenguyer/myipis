@@ -107,7 +107,7 @@ async fn raw_all(req: HttpRequest) -> Result<HttpResponse> {
         .to_owned();
 
     let mut response = String::new();
-    response.push_str(&format!("ip: {}", ip));
+    response.push_str(&format!("ip: {}\n", ip));
     for header in headers.iter() {
         response.push_str(&format!(
             "{}: {}\n",
