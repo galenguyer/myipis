@@ -1,10 +1,8 @@
-use actix_files as fs;
-use actix_session::{CookieSession, Session};
-use actix_web::http::{header, Method, StatusCode};
+use actix_web::http::{StatusCode};
 use actix_web::{
-    error, get, guard, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Result,
+    middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result,
 };
-use std::{env, io};
+use std::{env};
 
 async fn index(req: HttpRequest) -> Result<HttpResponse> {
     let connection_info = req.connection_info().clone();
@@ -14,7 +12,13 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         None => String::from(""),
     };
 
-    let ip = ip_port.split(":").map(|x| x.to_owned()).collect::<Vec<String>>().get(0).unwrap().to_owned();
+    let ip = ip_port
+        .split(":")
+        .map(|x| x.to_owned())
+        .collect::<Vec<String>>()
+        .get(0)
+        .unwrap()
+        .to_owned();
     // response
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/plain; charset=utf-8")
