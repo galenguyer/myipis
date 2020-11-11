@@ -7,4 +7,5 @@ RUN cargo build --release
 FROM alpine:3.12.1
 WORKDIR /app
 COPY --from=builder /app/target/release/myipis ./myipis
+EXPOSE 8080
 CMD ["/app/myipis"]
