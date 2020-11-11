@@ -25,6 +25,18 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         .body(ip))
 }
 
+async fn user_agent(req: HttpRequest) -> Result<HttpResponse> {
+    let headers = req.headers().to_owned();
+    let ua = match headers.get("User-Agent") {
+        Some(x) => x.to_str().unwrap().to_owned(),
+        None => String::from("Unknown")
+    };
+
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("text/plain; charset=utf-8")
+        .body(ua))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
@@ -35,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(index))
             .route("/ip", web::get().to(index))
+            .route("/useragent", web::get().to(user_agent))
     })
     .bind("0.0.0.0:8080")?
     .run()
