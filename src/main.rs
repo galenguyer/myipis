@@ -47,7 +47,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(index))
             .route("/ip", web::get().to(index))
-            .route("/useragent", web::get().to(user_agent))
+            .route("/raw/ip", web::get().to(index))
+            .route("/raw/useragent", web::get().to(user_agent))
     })
     .bind("0.0.0.0:8080")?
     .run()
