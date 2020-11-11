@@ -19,10 +19,24 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         .get(0)
         .unwrap()
         .to_owned();
-    // response
-    Ok(HttpResponse::build(StatusCode::OK)
-        .content_type("text/plain; charset=utf-8")
-        .body(ip))
+
+    let headers = req.headers().to_owned();
+    let ua = match headers.get("User-Agent") {
+        Some(x) => x.to_str().unwrap().to_owned(),
+        None => String::from("Unknown")
+    };
+    if ua.starts_with("curl") {
+        // response
+        Ok(HttpResponse::build(StatusCode::OK)
+            .content_type("text/plain; charset=utf-8")
+            .body(ip))
+    }
+    else {
+        // response
+        Ok(HttpResponse::build(StatusCode::OK)
+            .content_type("text/plain; charset=utf-8")
+            .body(format!("your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/useragent", ip)))
+    }
 }
 
 async fn user_agent(req: HttpRequest) -> Result<HttpResponse> {
