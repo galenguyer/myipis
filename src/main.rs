@@ -73,6 +73,19 @@ async fn raw_user_agent(req: HttpRequest) -> Result<HttpResponse> {
         .body(format!("{}\n", ua)))
 }
 
+async fn raw_headers(req: HttpRequest) -> Result<HttpResponse> {
+    let headers = req.headers().to_owned();
+    let mut header_str = String::new();
+
+    for header in headers.iter() {
+        header_str.push_str(&format!("{}: {}\n", header.0.as_str(), header.1.to_str().unwrap()));
+    }
+
+    Ok(HttpResponse::build(StatusCode::OK)
+    .content_type("text/plain; charset=utf-8")
+    .body(format!("{}\n", header_str)))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
@@ -84,6 +97,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .route("/ip", web::get().to(raw_ip))
             .route("/raw/ip", web::get().to(raw_ip))
+            .route("/raw/headers", web::get().to(raw_headers))
             .route("/raw/useragent", web::get().to(raw_user_agent))
     })
     .bind("0.0.0.0:8080")?
