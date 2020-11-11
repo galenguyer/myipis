@@ -1,7 +1,7 @@
 use actix_web::http::StatusCode;
 use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result};
-use std::env;
 use std::collections::HashMap;
+use std::env;
 
 async fn index(req: HttpRequest) -> Result<HttpResponse> {
     let connection_info = req.connection_info().clone();
@@ -34,7 +34,7 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         Ok(HttpResponse::build(StatusCode::OK)
             .content_type("text/plain; charset=utf-8")
             .body(format!(
-                "your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/useragent\n",
+                "your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/headers\n/raw/useragent\n/json/ip\n/json/headers\n/json/useragent",
                 ip
             )))
     }
@@ -79,12 +79,16 @@ async fn raw_headers(req: HttpRequest) -> Result<HttpResponse> {
     let mut header_str = String::new();
 
     for header in headers.iter() {
-        header_str.push_str(&format!("{}: {}\n", header.0.as_str(), header.1.to_str().unwrap()));
+        header_str.push_str(&format!(
+            "{}: {}\n",
+            header.0.as_str(),
+            header.1.to_str().unwrap()
+        ));
     }
 
     Ok(HttpResponse::build(StatusCode::OK)
-    .content_type("text/plain; charset=utf-8")
-    .body(header_str))
+        .content_type("text/plain; charset=utf-8")
+        .body(header_str))
 }
 
 async fn json_ip(req: HttpRequest) -> Result<HttpResponse> {
@@ -111,6 +115,34 @@ async fn json_ip(req: HttpRequest) -> Result<HttpResponse> {
         .json(response))
 }
 
+async fn json_user_agent(req: HttpRequest) -> Result<HttpResponse> {
+    let headers = req.headers().to_owned();
+    let ua = match headers.get("User-Agent") {
+        Some(x) => x.to_str().unwrap().to_owned(),
+        None => String::from("Unknown"),
+    };
+
+    let mut response = HashMap::new();
+    response.insert("user-agent".to_string(), ua.to_string());
+
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("application/json; charset=utf-8")
+        .json(response))
+}
+
+async fn json_headers(req: HttpRequest) -> Result<HttpResponse> {
+    let header_map = req.headers().to_owned();
+    let mut headers = HashMap::new();
+
+    for header in header_map.iter() {
+        headers.insert(header.0.to_string(), header.1.to_str().unwrap().to_owned());
+    }
+
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("application/json; charset=utf-8")
+        .json(headers))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
@@ -125,6 +157,8 @@ async fn main() -> std::io::Result<()> {
             .route("/raw/headers", web::get().to(raw_headers))
             .route("/raw/useragent", web::get().to(raw_user_agent))
             .route("/json/ip", web::get().to(json_ip))
+            .route("/json/headers", web::get().to(json_headers))
+            .route("/json/useragent", web::get().to(json_user_agent))
     })
     .bind("0.0.0.0:8080")?
     .run()
