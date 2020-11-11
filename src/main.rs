@@ -34,7 +34,7 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         Ok(HttpResponse::build(StatusCode::OK)
             .content_type("text/plain; charset=utf-8")
             .body(format!(
-                "your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/headers\n/raw/useragent\n/json/ip\n/json/headers\n/json/useragent",
+                "your ip is: {}\nother routes:\n/ip\n/ua\n/raw/ip\n/raw/headers\n/raw/useragent\n/json/ip\n/json/headers\n/json/useragent",
                 ip
             )))
     }
@@ -153,6 +153,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .route("/", web::get().to(index))
             .route("/ip", web::get().to(raw_ip))
+            .route("/ua", web::get().to(raw_user_agent))
             .route("/raw/ip", web::get().to(raw_ip))
             .route("/raw/headers", web::get().to(raw_headers))
             .route("/raw/useragent", web::get().to(raw_user_agent))
