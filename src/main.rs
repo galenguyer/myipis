@@ -83,7 +83,7 @@ async fn raw_headers(req: HttpRequest) -> Result<HttpResponse> {
 
     Ok(HttpResponse::build(StatusCode::OK)
     .content_type("text/plain; charset=utf-8")
-    .body(format!("{}\n", header_str)))
+    .body(header_str))
 }
 
 #[actix_web::main]
