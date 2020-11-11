@@ -29,13 +29,13 @@ async fn index(req: HttpRequest) -> Result<HttpResponse> {
         // response
         Ok(HttpResponse::build(StatusCode::OK)
             .content_type("text/plain; charset=utf-8")
-            .body(ip))
+            .body(format!("{}\n", ip)))
     }
     else {
         // response
         Ok(HttpResponse::build(StatusCode::OK)
             .content_type("text/plain; charset=utf-8")
-            .body(format!("your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/useragent", ip)))
+            .body(format!("your ip is: {}\nother routes:\n/ip\n/raw/ip\n/raw/useragent\n", ip)))
     }
 }
 
@@ -48,7 +48,7 @@ async fn user_agent(req: HttpRequest) -> Result<HttpResponse> {
 
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/plain; charset=utf-8")
-        .body(ua))
+        .body(format!("{}\n", ua)))
 }
 
 #[actix_web::main]
